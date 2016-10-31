@@ -19,3 +19,14 @@ def log_transform(X):
 
 def binarize(X):
     return np.where(X > 0, 1, 0)
+
+def cross_entropy(outputs, labels):
+    """
+    Args:
+        outputs -- The 'z_k(x)' output units for a given training example.
+        labels  -- The corresponding one-hot encoded ground truth labels y_k.
+    """
+    return - np.sum(labels * np.log(outputs))
+
+def appendBiasDim(x):
+    return np.append(np.ones(x[:, None].shape), x[:, None], axis=1)

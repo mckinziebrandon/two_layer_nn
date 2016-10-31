@@ -14,29 +14,30 @@ def sigmoid_deriv(x):
     return sigmoid(x) * (1. - sigmoid(x))
 
 # ----------------------- SOFTMAX ---------------------
+def softmax(z):
+    norm = sum(np.exp(z))
+    return np.array([softmax(z_j, norm) for z_j in z])
 
-def softmax(j, z):
+def softmax(z_j, norm):
     """
     Args:
-        j -- subscript denoting this is for the jth output unit.
         z -- np.array of (weighted-sum) inputs to the output units.
     """
-    return np.exp(z[j]) / sum(np.exp(z))
+    return np.exp(z_j) / norm
 
 def softmax_deriv(j, i, z):
     """
     Returns:
         derivative of g_j(z) w.r.t. z_i, where . . .
     Args:
-        j -- index applied to numerator:    g_j(z)
-        i -- index applied to denominator:  z_i
         z -- np.array of (weighted-sum) inputs to the output units.
     """
-    g_j = softmax(j, z)
+    norm = sum(np.exp(z))
+    g_j = softmax(z[j], norm)
     if j == i:
         return g_j * (1 - g_j)
     else:
-        return - g_j * softmax(i, z)
+        return - g_j * softmax(z[i], norm)
 
 # ----------------------- RELU ---------------------
 
