@@ -1,5 +1,7 @@
 import numpy as np
 
+# ----------------------- SIGMOID ---------------------
+
 def sigmoid(x):
     if np.all(x > 0):
         z = np.exp(-x)
@@ -10,6 +12,8 @@ def sigmoid(x):
 
 def sigmoid_deriv(x):
     return sigmoid(x) * (1. - sigmoid(x))
+
+# ----------------------- SOFTMAX ---------------------
 
 def softmax(j, z):
     """
@@ -34,3 +38,14 @@ def softmax_deriv(j, i, z):
     else:
         return - g_j * softmax(i, z)
 
+# ----------------------- RELU ---------------------
+
+def relu(x):
+    """
+    Args:
+        x -- array-like
+    """
+    return np.maximum(x, 0)
+
+def relu_deriv(x):
+    return 1 if x > 0  else 0

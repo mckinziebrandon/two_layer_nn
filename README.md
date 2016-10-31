@@ -1,4 +1,6 @@
-* Total of three layers:
+# Simple Neural Network for MNIST Digit Recognition.
+
+Total of three layers:
     1. Input.
     2. Hidden.
     3. Output.
