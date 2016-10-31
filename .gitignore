@@ -1,0 +1,7 @@
+data/*
+*.sh
+*cache*
+*.pdf
+.*.swp
+*swp*
+
