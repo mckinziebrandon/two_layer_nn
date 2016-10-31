@@ -1,7 +1,8 @@
 # Let NeuralNetwork deal with details like bias.
 import numpy as np
-import networkComponents
+from networkComponents import *
 import activations
+import util
 
 class NeuralNetwork(object):
 
@@ -23,8 +24,11 @@ class NeuralNetwork(object):
         self.h = np.zeros(self.n_hid)
         self.o = np.zeros(self.n_out)
 
-        self.V = Model((self.n_hid, self.n_in + 1))
-        self.W = Model((self.n_out, self.n_hid + 1))
+        #self.V = Model((self.n_hid, self.n_in + 1))
+        #self.W = Model((self.n_out, self.n_hid + 1))
+
+        self.V = np.random.randn(self.n_hid, self.n_in + 1)
+        self.W = np.random.randn(self.n_out, self.n_hid + 1)
 
 
     def forward_pass(self, x, y):
@@ -45,7 +49,7 @@ class NeuralNetwork(object):
         self.h   = activations.relu(S_h)
 
         # Second step: Compute values of output units.
-        h = np.append(1, h)
+        h = np.append(1, self.h)
         S_o = np.dot(self.W, h)
         self.o   = activations.softmax(S_o)
 

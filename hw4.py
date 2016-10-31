@@ -2,7 +2,7 @@ from mnist import MNIST
 import numpy as np
 
 import util
-import neuralNetwork
+from neuralNetwork import NeuralNetwork
 
 """
 Change this code however you want.
@@ -39,7 +39,12 @@ def trainNeuralNetwork():
     print("X_val.shape", X_val.shape)
     print("labels_val.shape", labels_val.shape)
 
+    x, y = X_train[0], Y_train[0]
+    print("x.shape", x.shape)
+    print("y.shape", y.shape)
     neural_net = NeuralNetwork(n_in, n_hid, n_out)
+    loss = neural_net.forward_pass(x, y)
+    print("loss is", loss)
 
 
 

@@ -1,8 +1,7 @@
 # networkComponents.py
+import numpy as np
 
 #LAYER_TYPES = {"INPUT": , "HIDDEN", "OUTPUT": softmax}
-
-
 
 class Layer(object):
 
@@ -31,16 +30,4 @@ class Model(object):
         # TODO: Decide initialization.
 
 
-
-
-
-class Node(object):
-    """ TODO: Describe me. """
-
-    def __init__(self):
-        """ TODO: Describe me. """
-
-        self.input_shape    = ()
-        self.output_shape   = ()
-        self.activation     = None
 
