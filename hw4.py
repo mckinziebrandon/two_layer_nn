@@ -40,14 +40,17 @@ def trainNeuralNetwork():
 
     # ___________ Initialize the neural network. ____________
     neural_net = NeuralNetwork(n_in, n_hid, n_out)
-    neural_net.set_data(X_train[:1000], labels_train[:1000])
+    neural_net.set_data(X_train[:100], labels_train[:100])
 
-    x, y = X_train[0], Y_train[0]
-    print("x.shape", x.shape)
-    print("y.shape", y.shape)
     loss = neural_net.forward_pass(debug=True)
     print("loss.shape=", loss.shape)
 
+    num_samples = np.arange(neural_net.data['X'].shape[0])
+    np.random.shuffle(num_samples)
+    for i in num_samples:
+        # Calculate the deltas back for input X[i].
+        neural_net.backward_pass(i)
+        neural_net.update_weights(i)
 
 
 if __name__ == "__main__":

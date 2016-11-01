@@ -44,7 +44,6 @@ class NeuralNetwork(object):
         (new_x, new_y) = joined_data[:, :self.n_in], joined_data[:, self.n_in:]
         return {'X': new_x, 'Y': new_y.flatten()}
 
-
     def forward_pass(self, debug=False):
         """
         Computes the values of all units (neurons) over ALL sample points (vectorized).
