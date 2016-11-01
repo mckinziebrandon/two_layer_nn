@@ -37,7 +37,7 @@ def relu(x):
     return np.where(x > 0, x, 0)
 
 def relu_deriv(x):
-    return 1 if x > 0  else 0
+    return np.where(x > 0, 1, 0)
 
 # ----------------------- SIGMOID ---------------------
 
