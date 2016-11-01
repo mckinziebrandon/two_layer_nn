@@ -33,23 +33,19 @@ def trainNeuralNetwork():
     Y_train     = util.one_hot(labels_train, n_out)
     Y_val       = util.one_hot(labels_val, n_out)
 
-    X_standard  = util.standardized(X_train)
-    print("mean", np.mean(X_standard, axis = 0).shape)
-
     print("X_train.shape", X_train.shape)
     print("labels_train.shape", labels_train.shape)
     print("X_val.shape", X_val.shape)
     print("labels_val.shape", labels_val.shape)
 
-    x, y = X_train[0], Y_train[0]
-    print("x.shape", x.shape)
-    print("y.shape", y.shape)
-
     # ___________ Initialize the neural network. ____________
     neural_net = NeuralNetwork(n_in, n_hid, n_out)
     neural_net.set_data(X_train, Y_train)
 
-    #loss = neural_net.forward_pass(x, y, debug=True)
+    x, y = X_train[0], Y_train[0]
+    print("x.shape", x.shape)
+    print("y.shape", y.shape)
+    neural_net.forward_pass(debug=True)
     #print("loss is", loss)
 
 

@@ -12,8 +12,8 @@ def predict(model, X):
     return np.argmax(np.dot(X, model), axis=1)
 
 def standardized(X):
-    return X
     #return (X - np.mean(X, axis=0)) / np.std(X, axis=0)
+    return (X - np.mean(X, axis=0))
 
 def log_transform(X):
     return np.log(X + 0.1)
@@ -29,5 +29,7 @@ def cross_entropy(outputs, labels):
     """
     return - np.sum(labels * np.log(outputs))
 
-def appendBiasDim(x):
-    return np.append(np.ones(x[:, None].shape), x[:, None], axis=1)
+def withBias(X):
+    return np.hstack((np.ones((X.shape[0], 1)), X))
+
+#def withBias(X):

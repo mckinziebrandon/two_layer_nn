@@ -20,18 +20,20 @@ class NeuralNetwork(object):
         self.n_out  = n_out
 
         # Initialize values of all units.
-        self.x = np.zeros(self.n_in)
-        self.h = np.zeros(self.n_hid)
-        self.o = np.zeros(self.n_out)
+        # TODO: Actually, shapes are N_data by _____ for all. Fix.
+        self.X = np.zeros(self.n_in)
+        self.H = np.zeros(self.n_hid)
+        self.O = np.zeros(self.n_out)
 
-        #self.V = Model((self.n_hid, self.n_in + 1))
-        #self.W = Model((self.n_out, self.n_hid + 1))
-
+        # Weights initialization.
         self.V = np.random.randn(self.n_hid, self.n_in + 1)
         self.W = np.random.randn(self.n_out, self.n_hid + 1)
 
     def set_data(self, X_data, Y_data):
+        """ Store data in instance attribute self.data,
+            which is a dictionary with keys 'X' and 'Y'. """
         self.data = self._get_shuffled_data_dict(X_data, Y_data)
+        self.data['X'] = util.standardized(self.data['X'])
 
     def _get_shuffled_data_dict(self, X_data, Y_data):
         # First zip the data along the same axis before shuffling.
@@ -43,10 +45,9 @@ class NeuralNetwork(object):
         return {'X': new_x, 'Y': new_y}
 
 
-
-    def forward_pass(self, x, y, debug=False):
+    def forward_pass(self, debug=False):
         """
-        Computes the values of all units (neurons) given some input data point x.
+        Computes the values of all units (neurons) over ALL sample points (vectorized).
 
         Args:
             x -- Single data point with x.shape == (n_in,)
@@ -54,18 +55,19 @@ class NeuralNetwork(object):
 
         Returns: the cross-entropy loss for this point x.
         """
-        self.x = x
 
         # First step: Compute values of hidden neuron units.
-        S_h     = np.dot(self.V, np.append(1, self.x))
-        self.h  = activations.relu(S_h)
+        if (debug): print("Forward Pass: Computing 1st layer . . . ")
+        S_h     = util.withBias(self.data['X']) @ self.V.T
+        self.H  = activations.relu(S_h)
 
         # Second step: Compute values of output units.
-        S_o     = np.dot(self.W, np.append(1, self.h))
-        if debug: print("Summed ouputs: =", S_o)
-        self.o  = activations.softmax(S_o)
+        if (debug): print("Forward Pass: Computing 2nd layer . . . ")
+        S_o     = util.withBias(self.H) @ self.W.T
+        #S_o     = np.dot(self.W, np.append(1, self.H))
+        self.O  = activations.softmax(S_o)
 
-        return util.cross_entropy(self.o, y)
+        #return util.cross_entropy(self.O, y)
 
 
 

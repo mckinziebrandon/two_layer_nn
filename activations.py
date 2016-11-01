@@ -2,10 +2,9 @@ import numpy as np
 
 # ----------------------- SOFTMAX ---------------------
 def softmax(z):
-    e_x = np.exp(z - np.max(z))
+    """ Exp-normalize trick from timvieira blog. """
+    e_x = np.exp(z - np.amax(z, axis=0))
     return e_x / e_x.sum(axis = 0)
-    #norm = sum(np.exp(z), axis=0)
-    #return np.array([_softmax(z_j, norm) for z_j in z])
 
 def _softmax(z_j, norm):
     """
@@ -35,7 +34,7 @@ def relu(x):
     Args:
         x -- array-like
     """
-    return np.maximum(x, 0)
+    return np.where(x > 0, x, 0)
 
 def relu_deriv(x):
     return 1 if x > 0  else 0
