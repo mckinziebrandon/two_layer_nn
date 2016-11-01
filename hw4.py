@@ -40,13 +40,13 @@ def trainNeuralNetwork():
 
     # ___________ Initialize the neural network. ____________
     neural_net = NeuralNetwork(n_in, n_hid, n_out)
-    neural_net.set_data(X_train, Y_train)
+    neural_net.set_data(X_train[:1000], labels_train[:1000])
 
     x, y = X_train[0], Y_train[0]
     print("x.shape", x.shape)
     print("y.shape", y.shape)
-    neural_net.forward_pass(debug=True)
-    #print("loss is", loss)
+    loss = neural_net.forward_pass(debug=True)
+    print("loss.shape=", loss.shape)
 
 
 

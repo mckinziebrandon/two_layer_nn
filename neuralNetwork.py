@@ -37,12 +37,12 @@ class NeuralNetwork(object):
 
     def _get_shuffled_data_dict(self, X_data, Y_data):
         # First zip the data along the same axis before shuffling.
-        joined_data = np.concatenate((X_data, Y_data), axis=1)
+        joined_data = np.concatenate((X_data, Y_data[:, None]), axis=1)
         # Now we can shuffle the data together.
         np.random.shuffle(joined_data)
         # Separate back and return in a dictionary.
         (new_x, new_y) = joined_data[:, :self.n_in], joined_data[:, self.n_in:]
-        return {'X': new_x, 'Y': new_y}
+        return {'X': new_x, 'Y': new_y.flatten()}
 
 
     def forward_pass(self, debug=False):
@@ -64,10 +64,9 @@ class NeuralNetwork(object):
         # Second step: Compute values of output units.
         if (debug): print("Forward Pass: Computing 2nd layer . . . ")
         S_o     = util.withBias(self.H) @ self.W.T
-        #S_o     = np.dot(self.W, np.append(1, self.H))
         self.O  = activations.softmax(S_o)
 
-        #return util.cross_entropy(self.O, y)
+        return util.cross_entropy(self.O, self.data['Y'])
 
 
 
