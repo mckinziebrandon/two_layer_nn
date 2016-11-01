@@ -30,8 +30,21 @@ class NeuralNetwork(object):
         self.V = np.random.randn(self.n_hid, self.n_in + 1)
         self.W = np.random.randn(self.n_out, self.n_hid + 1)
 
+    def set_data(self, X_data, Y_data):
+        self.data = self._get_shuffled_data_dict(X_data, Y_data)
 
-    def forward_pass(self, x, y):
+    def _get_shuffled_data_dict(self, X_data, Y_data):
+        # First zip the data along the same axis before shuffling.
+        joined_data = np.concatenate((X_data, Y_data), axis=1)
+        # Now we can shuffle the data together.
+        np.random.shuffle(joined_data)
+        # Separate back and return in a dictionary.
+        (new_x, new_y) = joined_data[:, :self.n_in], joined_data[:, self.n_in:]
+        return {'X': new_x, 'Y': new_y}
+
+
+
+    def forward_pass(self, x, y, debug=False):
         """
         Computes the values of all units (neurons) given some input data point x.
 
@@ -42,16 +55,15 @@ class NeuralNetwork(object):
         Returns: the cross-entropy loss for this point x.
         """
         self.x = x
-        x = np.append(1, x)
 
         # First step: Compute values of hidden neuron units.
-        S_h = np.dot(self.V, x)
-        self.h   = activations.relu(S_h)
+        S_h     = np.dot(self.V, np.append(1, self.x))
+        self.h  = activations.relu(S_h)
 
         # Second step: Compute values of output units.
-        h = np.append(1, self.h)
-        S_o = np.dot(self.W, h)
-        self.o   = activations.softmax(S_o)
+        S_o     = np.dot(self.W, np.append(1, self.h))
+        if debug: print("Summed ouputs: =", S_o)
+        self.o  = activations.softmax(S_o)
 
         return util.cross_entropy(self.o, y)
 

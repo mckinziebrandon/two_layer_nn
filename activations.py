@@ -1,22 +1,11 @@
 import numpy as np
 
-# ----------------------- SIGMOID ---------------------
-
-def sigmoid(x):
-    if np.all(x > 0):
-        z = np.exp(-x)
-        return 1. / (1. + z)
-    else:
-        z = np.exp(x)
-        return z / (1. + z)
-
-def sigmoid_deriv(x):
-    return sigmoid(x) * (1. - sigmoid(x))
-
 # ----------------------- SOFTMAX ---------------------
 def softmax(z):
-    norm = sum(np.exp(z))
-    return np.array([_softmax(z_j, norm) for z_j in z])
+    e_x = np.exp(z - np.max(z))
+    return e_x / e_x.sum(axis = 0)
+    #norm = sum(np.exp(z), axis=0)
+    #return np.array([_softmax(z_j, norm) for z_j in z])
 
 def _softmax(z_j, norm):
     """
@@ -50,3 +39,18 @@ def relu(x):
 
 def relu_deriv(x):
     return 1 if x > 0  else 0
+
+# ----------------------- SIGMOID ---------------------
+
+def sigmoid(x):
+    if np.all(x > 0):
+        z = np.exp(-x)
+        return 1. / (1. + z)
+    else:
+        z = np.exp(x)
+        return z / (1. + z)
+
+def sigmoid_deriv(x):
+    return sigmoid(x) * (1. - sigmoid(x))
+
+
