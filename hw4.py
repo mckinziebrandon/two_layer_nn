@@ -1,9 +1,11 @@
 #!/usr/bin/python
 import sys, getopt
 
+import sklearn.metrics as metrics
 from mnist import MNIST
 import numpy as np
 import pdb
+import matplotlib.pyplot as plt
 
 import util
 from neuralNetwork import NeuralNetwork
@@ -12,7 +14,7 @@ from neuralNetwork import NeuralNetwork
 Change this code however you want.
 """
 
-n_save = 50
+n_save = 60000
 
 def load_dataset():
     mndata = MNIST('./data/')
@@ -22,6 +24,22 @@ def load_dataset():
     X_val, labels_val = map(np.array, mndata.load_testing())
     # Remember to center and normalize the data...
     return X_train, labels_train, X_val, labels_val
+
+def plot_error(x_axis, y_axis, title):
+    plt.style.use('ggplot')
+
+    fig = plt.figure()
+    fig.suptitle("Stochastic Gradient Descent", fontsize='x-large')
+
+    ax1 = fig.add_subplot(111)
+    ax1.plot(x_axis, y_axis)
+    ax1.set_xlabel('Number of Iterations')
+    ax1.set_ylabel('Prediction Error')
+    plt.text(0.85 * x_axis[-1], 0.85, r'$\alpha=5e-2,\ \lambda=0.01$', fontsize='x-large')
+
+    #fig.savefig("{0}.png".format(title))
+    #fig.savefig("{0}.pdf".format(title))
+    plt.show()
 
 
 def trainNeuralNetwork(reload=False):
@@ -41,56 +59,34 @@ def trainNeuralNetwork(reload=False):
         X_val = files['X_val']
         labels_val = files['labels_val']
 
-
-    #pdb.set_trace()
-
-    # Number of inputs neurons = number of features (usually denoted as 'd')
-    n_in = X_train.shape[1]
-    # Number of hidden neurons (arbitrary).
-    n_hid = 200
-    # Number of outpus = number of classes = number of unique single digits.
-    n_out = 10
-
-    Y_train     = util.one_hot(labels_train, n_out)
-    Y_val       = util.one_hot(labels_val, n_out)
-
     print("X_train.shape", X_train.shape)
     print("labels_train.shape", labels_train.shape)
     print("X_val.shape", X_val.shape)
     print("labels_val.shape", labels_val.shape)
 
     # ___________ Initialize the neural network. ____________
-    neural_net = NeuralNetwork(n_in, n_hid, n_out)
+    neural_net = NeuralNetwork( eta=1e-4,
+                                n_in=X_train.shape[1],
+                                n_hid=200,
+                                n_out=10)
     neural_net.set_data(X_train, labels_train)
 
-    X, S_h, H, S_o, O = neural_net.forward_pass(verbose=True, debug=False)
-    do, dh= neural_net.get_deltas(O, H)
-    cost = neural_net.get_cost(O)
-    neural_net.train()
-    pdb.set_trace()
 
-
-    batches = [np.arange(a, a+4) for a in [0, 10, 20, 30, 40]]
-
-    cost = []
-    for batch in batches:
+    train_err = []
+    batches = np.array_split(np.arange(X_train[:10000].shape[0]), 1000)
+    for i, batch in enumerate(batches):
         # Tell neural net what data to train with.
         neural_net.set_active(batch)
         # Calculate values along feedforward.
-        X, S_h, H, S_o, O = self.forward_pass()
+        X, S_h, H, S_o, O = neural_net.forward_pass()
         # Get the training loss at this iteration.
-        cost.append(neural_net.get_cost(O))
+        train_err.append(neural_net.get_err(O))
         # Update weights via backprop.
         neural_net.train(X, H, O)
 
-
-
-    #num_samples = np.arange(neural_net.data['X'].shape[0])
-    #np.random.shuffle(num_samples)
-    #for i in num_samples:
-        # Calculate the deltas back for input X[i].
-        #neural_net.backward_pass(i)
-        #neural_net.update_weights(i)
+    x = np.arange(len(batches))
+    plot_error(x, train_err, "something")
+    #pdb.set_trace()
 
 
 if __name__ == "__main__":

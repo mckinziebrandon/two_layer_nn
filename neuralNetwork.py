@@ -1,4 +1,5 @@
 # Let NeuralNetwork deal with details like bias.
+import sklearn.metrics as metrics
 import numpy as np
 import pdb
 from networkComponents import *
@@ -8,7 +9,7 @@ import util
 class NeuralNetwork(object):
 
 
-    def __init__(self, n_in=784, n_hid=200, n_out=10):
+    def __init__(self, eta, n_in=784, n_hid=200, n_out=10):
         """
         Instance Variables:
             self.n_in   number of inputs (features) to network.
@@ -16,17 +17,11 @@ class NeuralNetwork(object):
             self.n_out  number of output neurons.
         """
         # Class attributes here. Shared among all instances.
-        self.eta = 1e-2
+        self.eta = eta
 
         self.n_in   = n_in
         self.n_hid  = n_hid
         self.n_out  = n_out
-
-        # Initialize values of all units.
-        # TODO: Actually, shapes are N_data by _____ for all. Fix.
-        #self.X = np.zeros(self.n_in)
-        #self.H = np.zeros(self.n_hid)
-        #self.O = np.zeros(self.n_out)
 
         # Weights initialization.
         self.V = util.weight_init((self.n_hid, self.n_in + 1),  how="uniform")
@@ -107,7 +102,6 @@ class NeuralNetwork(object):
 
 
     def train(self, X, H, O):
-        X, S_h, H, S_o, O = self.forward_pass()
         delta_o, delta_h = self.get_deltas(O, H)
 
         #pdb.set_trace()
@@ -116,6 +110,10 @@ class NeuralNetwork(object):
 
         self.V[:, 1:] -= (self.eta/self.n_data) * delta_h.T @ X
         self.V[:, :1] -=  (self.eta/self.n_data) * delta_h.sum(axis=0)[:, None]
+
+    def get_err(self, O):
+        Y_pred = util.predict(O)
+        return 1.0 - metrics.accuracy_score(self.labels, Y_pred)
 
 
     def predict(self, X):

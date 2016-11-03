@@ -30,7 +30,8 @@ def cross_entropy(O, Y_hot):
     """
     #O = predict(O)
     #print("O.shape", O.shape)
-    return - np.sum(Y_hot * np.log(np.where(O > 0, O, 1e-30)), axis=1)
+    n = O.shape[0]
+    return - (1/n) *  np.sum(Y_hot * np.log(np.where(O > 0, O, 1e-30)), axis=1).sum()
 
 def withBias(X):
     """

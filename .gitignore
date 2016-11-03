@@ -4,4 +4,5 @@ data/*
 *.pdf
 .*.swp
 *swp*
+*.npz
 
