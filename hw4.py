@@ -73,19 +73,26 @@ def trainNeuralNetwork(reload=False):
 
 
     train_err = []
-    batches = np.array_split(np.arange(X_train[:10000].shape[0]), 1000)
-    for i, batch in enumerate(batches):
-        # Tell neural net what data to train with.
-        neural_net.set_active(batch)
-        # Calculate values along feedforward.
-        X, S_h, H, S_o, O = neural_net.forward_pass()
-        # Get the training loss at this iteration.
-        train_err.append(neural_net.get_err(O))
-        # Update weights via backprop.
-        neural_net.train(X, H, O)
+    batches = np.array_split(np.arange(X_train.shape[0]), 1000)
 
-    x = np.arange(len(batches))
-    plot_error(x, train_err, "something")
+    epochs = np.arange(10)
+    x_range = len(epochs) * len(batches)
+    x_axis = np.arange(0, x_range, x_range//50)
+
+    for i in epochs:
+        print('========== EPOCH {} ======'.format(i))
+        neural_net.new_epoch(i)
+        for j, batch in enumerate(batches):
+            # Tell neural net what data to train with.
+            neural_net.set_active(batch)
+            # Calculate values along feedforward.
+            X, S_h, H, S_o, O = neural_net.forward_pass()
+            # Get the training loss at this iteration.
+            if i * len(batches) + j in x_axis: train_err.append(neural_net.get_err(O))
+            # Update weights via backprop.
+            neural_net.train(X, H, O)
+
+    plot_error(x_axis, train_err, "something")
     #pdb.set_trace()
 
 

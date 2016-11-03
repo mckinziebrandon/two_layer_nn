@@ -55,6 +55,10 @@ class NeuralNetwork(object):
         (new_x, new_y) = joined_data[:, :self.n_in], joined_data[:, self.n_in:]
         return {'X': new_x, 'labels': new_y.flatten()}
 
+    def new_epoch(self, i):
+        self.eta /= (1 + 0.00001*i)
+
+
     def forward_pass(self, verbose=False, debug=False):
         """
         Computes the values of all units (neurons) over ALL sample points (vectorized).
