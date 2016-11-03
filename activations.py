@@ -1,10 +1,17 @@
 import numpy as np
+import pdb
 
 # ----------------------- SOFTMAX ---------------------
-def softmax(z):
+def softmax(z, verbose=False):
     """ Exp-normalize trick from timvieira blog. """
-    e_x = np.exp(z - np.amax(z, axis=0))
-    return e_x / e_x.sum(axis = 0)
+    e_x             = np.exp(z - np.amax(z, axis=1)[:, None])
+    out_layer_sum   = e_x.sum(axis=1)
+    if verbose:
+        print("\t\t softmax exp shape", e_x.shape)
+        print("\t\t softmax sum shape", out_layer_sum.shape)
+    assert(e_x.shape == z.shape)
+    assert(out_layer_sum.shape[0] == z.shape[0])
+    return e_x / out_layer_sum[:, None]
 
 def _softmax(z_j, norm):
     """

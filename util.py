@@ -1,5 +1,6 @@
 # util.py -- Compilation of helper functions we've used in past homeworks.
 import numpy as np
+import pdb
 
 def one_hot(labels, num_classes=10):
     '''Convert categorical labels 0,1,2,....9 to standard basis vectors in R^{10} '''
@@ -21,20 +22,29 @@ def log_transform(X):
 def binarize(X):
     return np.where(X > 0, 1, 0)
 
-def cross_entropy(O, labels):
+def cross_entropy(O, Y_hot):
     """
     Args:
         outputs -- The 'z_k(x)' output units for a given training example.
         labels  -- The corresponding one-hot encoded ground truth labels y_k.
     """
-    print("O.shape", O.shape)
-    print("labels.shape", labels.shape)
-    #predictions = predict(O)
-    O = predict(O)
-    print("O.shape", O.shape)
-    return - labels * np.log(np.where(O > 0, O, 1e-30))
+    #O = predict(O)
+    #print("O.shape", O.shape)
+    return - np.sum(Y_hot * np.log(np.where(O > 0, O, 1e-30)), axis=1)
 
 def withBias(X):
+    """
+    Appends a column of 1s to X:
+        (X.shape[0], X.shape[1]) ==> (X.shape[0], 1 + X.shape[1])
+    """
+    #pdb.set_trace()
     return np.hstack((np.ones((X.shape[0], 1)), X))
 
-#def withBias(X):
+
+def weight_init(shape, how):
+    if how == "random":
+        return np.random.randn(*shape)
+    elif how == "uniform":
+        return np.random.uniform(-0.7, 0.7, shape) # ESL suggestion
+
+

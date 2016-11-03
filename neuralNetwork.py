@@ -1,5 +1,6 @@
 # Let NeuralNetwork deal with details like bias.
 import numpy as np
+import pdb
 from networkComponents import *
 import activations
 import util
@@ -7,7 +8,7 @@ import util
 class NeuralNetwork(object):
 
 
-    def __init__(self, n_in, n_hid, n_out):
+    def __init__(self, n_in=784, n_hid=200, n_out=10):
         """
         Instance Variables:
             self.n_in   number of inputs (features) to network.
@@ -15,7 +16,7 @@ class NeuralNetwork(object):
             self.n_out  number of output neurons.
         """
         # Class attributes here. Shared among all instances.
-        self.params = {'eta': 1e-2}
+        self.eta = 1e-2
 
         self.n_in   = n_in
         self.n_hid  = n_hid
@@ -23,21 +24,32 @@ class NeuralNetwork(object):
 
         # Initialize values of all units.
         # TODO: Actually, shapes are N_data by _____ for all. Fix.
-        self.X = np.zeros(self.n_in)
-        self.H = np.zeros(self.n_hid)
-        self.O = np.zeros(self.n_out)
+        #self.X = np.zeros(self.n_in)
+        #self.H = np.zeros(self.n_hid)
+        #self.O = np.zeros(self.n_out)
 
         # Weights initialization.
-        self.V = np.random.randn(self.n_hid, self.n_in + 1)
-        self.W = np.random.randn(self.n_out, self.n_hid + 1)
+        self.V = util.weight_init((self.n_hid, self.n_in + 1),  how="uniform")
+        self.W = util.weight_init((self.n_out, self.n_hid + 1), how="uniform")
 
     def set_data(self, X_data, Y_data):
         """ Store data in instance attribute self.data,
             which is a dictionary with keys 'X' and 'Y'. """
 
         self.data = self._get_shuffled_data_dict(X_data, Y_data)
-        self.data['X'] = util.standardized(self.data['X'])
+        self.data['X']       = util.standardized(self.data['X'])
         self.data['one_hot'] = util.one_hot(self.data['labels'])
+        self.X = self.data['X']
+        self.n_data = self.X.shape[0]
+        self.Y_hot = self.data['one_hot']
+        self.labels = self.data['labels']
+
+    def set_active(self, indices=None):
+        if indices is None: return
+        self.X = self.data['X'][indices]
+        self.Y_hot = self.data['one_hot'][indices]
+        self.labels = self.data['labels'][indices]
+        self.n_data = self.X.shape[0]
 
     def _get_shuffled_data_dict(self, X_data, Y_data):
         # First zip the data along the same axis before shuffling.
@@ -48,7 +60,7 @@ class NeuralNetwork(object):
         (new_x, new_y) = joined_data[:, :self.n_in], joined_data[:, self.n_in:]
         return {'X': new_x, 'labels': new_y.flatten()}
 
-    def forward_pass(self, indices=None, debug=False):
+    def forward_pass(self, verbose=False, debug=False):
         """
         Computes the values of all units (neurons) over ALL sample points (vectorized).
 
@@ -58,40 +70,57 @@ class NeuralNetwork(object):
 
         Returns: the cross-entropy loss for this point x.
         """
-        X = self.data['X'][indices]
+        if (verbose): print("\n _______ Forward Pass _______")
 
-        # First step: Compute values of hidden neuron units.
-        if (debug): print("Forward Pass: Computing 1st layer . . . ")
+        # Zeroth step: Outputs of input units.
+        X = self.X
+        if (verbose): print("\t X.shape", X.shape)
+
+        # First step: Outputs (H) of hidden units.
+        if (verbose): print("\t Computing 1st layer . . . ")
         S_h     = util.withBias(X) @ self.V.T
-        self.H  = activations.relu(S_h)
-        if (debug): print("self.H.shape", self.H.shape)
+        H       = activations.relu(S_h)
 
-        # Second step: Compute values of output units.
-        if (debug): print("Forward Pass: Computing 2nd layer . . . ")
-        S_o     = util.withBias(self.H) @ self.W.T
-        self.O  = activations.softmax(S_o)
+        # Second step: Outputs (O) of output units.
+        if (verbose): print("\t Computing 2nd layer . . . ")
+        S_o     = util.withBias(H) @ self.W.T
+        O  = activations.softmax(S_o, verbose)
 
-        self.loss = util.cross_entropy(self.O, self.data['labels'][indices])
-        return self.loss
+        if debug: pdb.set_trace()
+
+        return X, S_h, H, S_o, O
+
+    def get_cost(self, outputs):
+        return util.cross_entropy(outputs, self.Y_hot)
 
 
-    def backward_pass(self, ind=None):
+    def get_deltas(self, O, H):
         """
         Returns:
             delta_o, delta_1,
         """
-        delta_o = self.O - self.data['one_hot'][ind]
-        delta_h = delta_o @ self.W[:, 1:]
-        delta_h = np.where(activations.relu_deriv(self.H) > 0, delta_h, 0)
+        from activations import relu_deriv
+
+        delta_o = O - self.Y_hot
+        delta_h = relu_deriv(H) * (delta_o @ self.W[:, 1:])
         return delta_o, delta_h
 
 
-    def update_weights(self, delta_o, delta_h, ind=None):
-        norm = len(self.data['labels'][ind])
-        print("norm is ", norm)
+    def train(self, X, H, O):
+        X, S_h, H, S_o, O = self.forward_pass()
+        delta_o, delta_h = self.get_deltas(O, H)
 
-        dW = delta_o.T @ util.withBias(self.H)
-        self.W = self.W - self.params['eta'] * dW
+        #pdb.set_trace()
+        self.W[:, 1:] -= (self.eta/self.n_data) * delta_o.T @ H
+        self.W[:, :1] -=  (self.eta/self.n_data) * delta_o.sum(axis=0)[:, None]
+
+        self.V[:, 1:] -= (self.eta/self.n_data) * delta_h.T @ X
+        self.V[:, :1] -=  (self.eta/self.n_data) * delta_h.sum(axis=0)[:, None]
+
+
+    def predict(self, X):
+        X, S_h, H, S_o, O = self.forward_pass()
+        #y_pred = np.argmax(S, axis=1)
 
 
 

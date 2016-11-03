@@ -1,5 +1,9 @@
+#!/usr/bin/python
+import sys, getopt
+
 from mnist import MNIST
 import numpy as np
+import pdb
 
 import util
 from neuralNetwork import NeuralNetwork
@@ -7,6 +11,8 @@ from neuralNetwork import NeuralNetwork
 """
 Change this code however you want.
 """
+
+n_save = 50
 
 def load_dataset():
     mndata = MNIST('./data/')
@@ -18,10 +24,25 @@ def load_dataset():
     return X_train, labels_train, X_val, labels_val
 
 
-def trainNeuralNetwork():
+def trainNeuralNetwork(reload=False):
 
     # Get the MNIST data.
-    X_train, labels_train, X_val, labels_val = load_dataset()
+    if reload:
+        X_train, labels_train, X_val, labels_val = load_dataset()
+        np.savez('less_data_{0}.npz'.format(n_save),
+                X_train = X_train[:n_save],
+                labels_train=labels_train[:n_save],
+                X_val=X_val[:n_save],
+                labels_val=labels_val[:n_save])
+    else:
+        files = np.load('less_data_{0}.npz'.format(n_save))
+        X_train = files['X_train']
+        labels_train = files['labels_train']
+        X_val = files['X_val']
+        labels_val = files['labels_val']
+
+
+    #pdb.set_trace()
 
     # Number of inputs neurons = number of features (usually denoted as 'd')
     n_in = X_train.shape[1]
@@ -42,12 +63,26 @@ def trainNeuralNetwork():
     neural_net = NeuralNetwork(n_in, n_hid, n_out)
     neural_net.set_data(X_train, labels_train)
 
+    X, S_h, H, S_o, O = neural_net.forward_pass(verbose=True, debug=False)
+    do, dh= neural_net.get_deltas(O, H)
+    cost = neural_net.get_cost(O)
+    neural_net.train()
+    pdb.set_trace()
+
+
     batches = [np.arange(a, a+4) for a in [0, 10, 20, 30, 40]]
 
+    cost = []
     for batch in batches:
-        loss = neural_net.forward_pass(batch, debug=True)
-        delta_o, delta_h = neural_net.backward_pass(batch)
-        neural_net.update_weights(delta_o, delta_h)
+        # Tell neural net what data to train with.
+        neural_net.set_active(batch)
+        # Calculate values along feedforward.
+        X, S_h, H, S_o, O = self.forward_pass()
+        # Get the training loss at this iteration.
+        cost.append(neural_net.get_cost(O))
+        # Update weights via backprop.
+        neural_net.train(X, H, O)
+
 
 
     #num_samples = np.arange(neural_net.data['X'].shape[0])
@@ -59,7 +94,10 @@ def trainNeuralNetwork():
 
 
 if __name__ == "__main__":
-    trainNeuralNetwork()
+    if len(sys.argv) > 1 and sys.argv[1] == 'reload':
+        trainNeuralNetwork(reload=True)
+    else:
+        trainNeuralNetwork()
     print("I am a robot. Bleep Bloop.")
 
 
