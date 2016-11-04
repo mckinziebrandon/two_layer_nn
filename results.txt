@@ -1,0 +1,62 @@
+
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 1.00000E-04
+	Batch size:100
+	Num Epochs:1
+
+Training Accuracy:0.8400
+Test Accuracy:0.8370
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 7.77600E-05
+	Batch size:100
+	Num Epochs:5
+
+Training Accuracy:0.9100
+Test Accuracy:0.9265
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 9.76563E-07
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 9.76563E-07
+	decay_const: 0.500
+	Batch size:100
+	Num Epochs:10
+
+Training Accuracy:0.9200
+Test Accuracy:0.9247
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 1.07374E-04
+	decay_const: 0.800
+	Batch size:100
+	Num Epochs:10
+
+Training Accuracy:0.9400
+Test Accuracy:0.9379
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 2.82475E-05
+	decay_const: 0.700
+	Batch size:100
+	Num Epochs:10
+
+Training Accuracy:0.9400
+Test Accuracy:0.9354
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 2.82475E-05
+	decay_const: 0.700
+	Batch size:10
+	Num Epochs:10
+
+Training Accuracy:1.0000
+Test Accuracy:0.9728
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 7.00000E-04
+	decay_const: 0.700
+	Batch size:10
+	Num Epochs:1

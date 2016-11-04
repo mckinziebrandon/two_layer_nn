@@ -12,9 +12,9 @@ def predict(softmax_out):
     ''' From model and data points, output prediction vectors '''
     return np.argmax(softmax_out, axis=1)
 
-def standardized(X):
+def preprocess(X):
     #return (X - np.mean(X, axis=0)) / np.std(X, axis=0)
-    return (X - np.mean(X, axis=0))
+    return (X - np.mean(X, axis=0)) #/ 255.
 
 def log_transform(X):
     return np.log(X + 0.1)
