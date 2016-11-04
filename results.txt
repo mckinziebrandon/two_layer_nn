@@ -60,3 +60,104 @@ Hyperparameters:
 	decay_const: 0.700
 	Batch size:10
 	Num Epochs:1
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 7.00000E-04
+	decay_const: 0.700
+	Batch size:10
+	Num Epochs:1
+
+Training Accuracy:1.0000
+Test Accuracy:0.9157
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 1.68070E-04
+	decay_const: 0.700
+	l2 reg: 0.010
+	Batch size:100
+	Num Epochs:5
+
+Training Accuracy:0.9400
+Test Accuracy:0.9310
+________________ NeuralNetwork::print_results() ________________
+Hyperparameters:
+	Learning rate: 2.82475E-05
+	decay_const: 0.700
+	l2 reg: 0.010
+	Batch size:100
+	Num Epochs:10
+
+Training Accuracy:0.9800
+Test Accuracy:0.9351
+________________ NeuralNetwork::print_results() ________________
+Architecture:
+	Hidden Units: 200
+Hyperparameters:
+	Learning rate: 2.82475E-05
+	decay_const: 0.700
+	l2 reg: 0.010
+	Batch size:100
+	Num Epochs:10
+Evaluations:
+	Training Accuracy:0.9700
+	Test Accuracy:0.9366
+________________ NeuralNetwork::print_results() ________________
+Architecture:
+	Hidden Units: 400
+Hyperparameters:
+	Learning rate: 1.68070E-04
+	decay_const: 0.700
+	l2 reg: 0.010
+	Batch size:100
+	Num Epochs:5
+Evaluations:
+	Training Accuracy:0.9500
+	Test Accuracy:0.9427
+________________ NeuralNetwork::print_results() ________________
+Architecture:
+	Hidden Units: 400
+Hyperparameters:
+	Learning rate: 1.68070E-04
+	decay_const: 0.700
+	l2 reg: 0.010
+	Batch size:100
+	Num Epochs:5
+Evaluations:
+	Training Accuracy:0.9680
+	Test Accuracy:0.9384
+________________ NeuralNetwork::print_results() ________________
+Architecture:
+	Hidden Units: 400
+Hyperparameters:
+	Learning rate: 7.00000E-04
+	decay_const: 0.700
+	l2 reg: 0.010
+	Batch size:100
+	Num Epochs:1
+Evaluations:
+	Training Accuracy:0.9314
+	Test Accuracy:0.9191
+________________ NeuralNetwork::print_results() ________________
+Architecture:
+	Hidden Units: 800
+Hyperparameters:
+	Learning rate: 7.00000E-04
+	decay_const: 0.700
+	l2 reg: 0.010
+	Batch size:100
+	Num Epochs:1
+Evaluations:
+	Training Accuracy:0.9402
+	Test Accuracy:0.9296
+________________ NeuralNetwork::print_results() ________________
+Architecture:
+	Hidden Units: 800
+Hyperparameters:
+	Learning rate: 4.74756E-06
+	decay_const: 0.700
+	l2 reg: 0.010
+	Batch size:100
+	Num Epochs:15
+Evaluations:
+	Training Accuracy:0.9892
+	Test Accuracy:0.9497

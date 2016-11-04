@@ -71,19 +71,19 @@ def trainNeuralNetwork(reload=False):
 
     # ___________ Initialize the neural network. ____________
     neural_net = NeuralNetwork( n_in=X_train.shape[1],
-                                n_hid=200,
+                                n_hid=800,
                                 n_out=10,
                                 eta=1e-3,
                                 decay_const=0.7,
                                 l2=0.01,
-                                n_epochs=1)
+                                n_epochs=15)
 
     neural_net.set_data(X_train, labels_train)
 
 
     train_err = []
     n_train = int(50e3)
-    batches = np.array_split(np.arange(n_train), 5000)
+    batches = np.array_split(np.arange(n_train), 500)
 
     epochs  = np.arange(neural_net.n_epochs)
     x_range = len(epochs) * len(batches)
@@ -109,7 +109,7 @@ def trainNeuralNetwork(reload=False):
 
 
     # Save Kaggle predictions in CSV file.
-    if False:
+    if True:
         pred_labels_test = neural_net.predict_test(X_test)
         Id          = np.reshape(np.arange(1, 1+X_test.shape[0]), (X_test.shape[0], 1))
         Category    = np.reshape(pred_labels_test, (X_test.shape[0], 1))

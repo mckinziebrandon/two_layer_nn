@@ -118,9 +118,11 @@ class NeuralNetwork(object):
         self.V[:, 1:] -= norm * (delta_h.T @ X + self.l2 * self.V[:, 1:])
         self.V[:, :1] -=  norm * delta_h.sum(axis=0)[:, None]
 
-    def train_accuracy(self):
-        #self.X_active
-        #self.labels_active = self.data['labels_train']
+    def train_accuracy(self, total=False):
+        if total:
+            self.X_active = self.data['X_train']
+            self.labels_active = self.data['labels_train']
+            self.forward_pass()
         return metrics.accuracy_score(self.labels_active, util.predict(self.O))
 
     def val_accuracy(self):
@@ -137,13 +139,17 @@ class NeuralNetwork(object):
     def print_results(self):
         f = open('results.txt', 'a')
         f.write("\n________________ NeuralNetwork::print_results() ________________")
+        f.write("\nArchitecture:")
+        f.write("\n\tHidden Units: {}".format(self.n_hid))
         f.write("\nHyperparameters:")
         f.write("\n\tLearning rate: {:.5E}".format(self.eta))
         f.write("\n\tdecay_const: {:.3F}".format(self.decay_const))
+        f.write("\n\tl2 reg: {:.3F}".format(self.l2))
         f.write("\n\tBatch size:{}".format(self.n_data_active))
         f.write("\n\tNum Epochs:{}".format(self.n_epochs))
-        f.write("\n\nTraining Accuracy:{:.4f}".format(self.train_accuracy()))
-        f.write("\nTest Accuracy:{:.4f}".format(self.val_accuracy()))
+        f.write("\nEvaluations:")
+        f.write("\n\tTraining Accuracy:{:.4f}".format(self.train_accuracy(total=True)))
+        f.write("\n\tTest Accuracy:{:.4f}".format(self.val_accuracy()))
         f.close()
 
 
