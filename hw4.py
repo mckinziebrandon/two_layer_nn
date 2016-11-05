@@ -25,72 +25,67 @@ def load_dataset():
     # Remember to center and normalize the data...
     return X_train, labels_train, X_val, labels_val
 
-def get_data(reload=False):
+def get_data(reload=False, wantDeskew=True):
     if reload:
-        X_train, labels_train, X_val, labels_val = load_dataset()
+        X_train, labels_train, X_test, labels_test = load_dataset()
+        X_train = X_train/255.
+        X_test = X_test/255.
+        if wantDeskew:
+            print("Deskewing...")
+            X_train = util.deskewAll(X_train)
+            X_test = util.deskewAll(X_test)
         np.savez('less_data_{0}.npz'.format(n_save),
                 X_train      = X_train[:n_save],
                 labels_train = labels_train[:n_save],
-                X_val        = X_val[:n_save],
-                labels_val   = labels_val[:n_save])
+                X_test        = X_test[:n_save],
+                labels_test   = labels_test[:n_save])
     else:
         files        = np.load('less_data_{0}.npz'.format(n_save))
         X_train      = files['X_train']
         labels_train = files['labels_train']
-        X_val        = files['X_val']
-        labels_val   = files['labels_val']
-    return X_train, labels_train, X_val, labels_val
+        X_test        = files['X_test']
+        labels_test   = files['labels_test']
+    return X_train, labels_train, X_test, labels_test
 
-
-def plot_error(x_axis, y_axis, title):
-    plt.style.use('ggplot')
-
-    fig = plt.figure()
-    fig.suptitle("Stochastic Gradient Descent", fontsize='x-large')
-
-    ax1 = fig.add_subplot(111)
-    ax1.plot(x_axis, y_axis)
-    ax1.set_xlabel('Number of Iterations')
-    ax1.set_ylabel('Training Error')
-    plt.text(0.85 * x_axis[-1], 0.85, r'$\alpha=5e-2,\ \lambda=0.01$', fontsize='x-large')
-
-    #fig.savefig("{0}.png".format(title))
-    #fig.savefig("{0}.pdf".format(title))
-    plt.show()
-
-
-def trainNeuralNetwork(reload=False):
+def trainNeuralNetwork(reload=False, wantDeskew=True):
 
     # Get the MNIST data, either by loading saved data or getting it new.
-    X_train, labels_train, X_test, labels_test = get_data(reload)
+    X_train, labels_train, X_test, labels_test = get_data(reload, wantDeskew)
+    #labels_train = util.deskew(labels_train)
+    #labels_test = util.deskew(labels_test)
 
     print("X_train.shape", X_train.shape)
     print("labels_train.shape", labels_train.shape)
-    #print("X_val.shape", X_val.shape)
-    #print("labels_val.shape", labels_val.shape)
 
     # ___________ Initialize the neural network. ____________
     neural_net = NeuralNetwork( n_in=X_train.shape[1],
-                                n_hid=800,
+                                n_hid=200,
                                 n_out=10,
-                                eta=1e-3,
-                                decay_const=0.7,
-                                l2=0.01,
-                                n_epochs=15)
+                                eta=0.1,
+                                decay_const=0.5,
+                                alpha=0.1,
+                                l2=0.02,
+                                batch_size=50,
+                                n_epochs=3)
 
     neural_net.set_data(X_train, labels_train)
 
+    accuracy = []
+    loss = []
 
-    train_err = []
     n_train = int(50e3)
-    batches = np.array_split(np.arange(n_train), 500)
+    n_batches = n_train//neural_net.batch_size
+    batches = np.array_split(np.arange(n_train), n_batches)
+    print("Splitting into", len(batches), "of size", neural_net.batch_size)
 
     epochs  = np.arange(neural_net.n_epochs)
-    x_range = len(epochs) * len(batches)
-    x_axis  = np.arange(0, x_range, x_range//50)
+    n_iter_total = len(epochs) * len(batches)
+    x_axis  = np.arange(0, n_iter_total, n_iter_total//100)
+    print("preparing to collect", len(x_axis), "points to plot.")
 
+    print("Beginning", n_iter_total,"iterations of minibatch gradient descent.")
     for i in epochs:
-        print('========== EPOCH {} ======'.format(i))
+        print('\n========== EPOCH {} ======'.format(i))
         neural_net.new_epoch(i)
         for j, batch in enumerate(batches):
 
@@ -102,22 +97,24 @@ def trainNeuralNetwork(reload=False):
 
             # Get the training loss at this iteration.
             if i * len(batches) + j in x_axis:
-                train_err.append(1.0 - neural_net.train_accuracy())
+                print(".", end=" "); sys.stdout.flush()
+                loss.append(neural_net.get_loss())
+                accuracy.append(neural_net.train_accuracy())
 
             # Update weights via backprop.
             neural_net.train(X, H, O)
 
 
     # Save Kaggle predictions in CSV file.
-    if True:
-        pred_labels_test = neural_net.predict_test(X_test)
+    if False:
+        pred_labels_test = neural_net.predict_test(util.preprocess(X_test))
         Id          = np.reshape(np.arange(1, 1+X_test.shape[0]), (X_test.shape[0], 1))
         Category    = np.reshape(pred_labels_test, (X_test.shape[0], 1))
         columns     = np.hstack((Id, Category))
         np.savetxt('predictions.csv', columns, delimiter=',', header='Id, Category', fmt='%d')
 
     neural_net.print_results()
-    plot_error(x_axis, train_err, "something")
+    util.plot_error(x_axis, loss, accuracy, neural_net.get_params())
     #pdb.set_trace()
 
 

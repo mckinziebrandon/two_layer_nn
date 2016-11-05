@@ -10,7 +10,7 @@ class NeuralNetwork(object):
 
 
     def __init__(self, n_in=784, n_hid=200, n_out=10,
-                       eta=1e-4, decay_const=0.5, l2=0.01, n_epochs=5):
+                       eta=1e-4, decay_const=0.5, alpha=0.9, l2=0.01, batch_size=1, n_epochs=5):
         """
         Instance Variables:
             self.n_in   number of inputs (features) to network.
@@ -21,13 +21,17 @@ class NeuralNetwork(object):
         self.n_hid      = n_hid
         self.n_out      = n_out
         self.eta        = eta
-        self.l2 = l2
-        self.decay_const        = decay_const
+        self.alpha      = alpha # momentum
+        self.l2         = l2
+        self.decay_const= decay_const
+        self.batch_size = batch_size
         self.n_epochs   = n_epochs
 
         # Weight initialization.
         self.V = util.weight_init((self.n_hid, self.n_in + 1),  how="uniform")
         self.W = util.weight_init((self.n_out, self.n_hid + 1), how="uniform")
+        #self.prevV = np.zeros(self.V.shape)
+        #self.prevW = np.zeros(self.W.shape)
 
     def set_data(self, X_train, labels_train):
         """ Store data in instance attribute self.data,
@@ -94,8 +98,6 @@ class NeuralNetwork(object):
         self.O = O
         return X, S_h, H, S_o, O
 
-    #def get_cost(self, outputs):
-        #return util.cross_entropy(outputs, self.Y_hot)
 
     def get_deltas(self, O, H):
         """
@@ -112,11 +114,20 @@ class NeuralNetwork(object):
 
         #pdb.set_trace()
         norm = self.eta / self.n_data_active
-        self.W[:, 1:] -= norm * (delta_o.T @ H + self.l2 * self.W[:, 1:])
-        self.W[:, :1] -=  norm * delta_o.sum(axis=0)[:, None]
+        self.W[:, 1:] = (1 + self.alpha) * self.W[:, 1:] - norm * (delta_o.T @ H + self.l2 * self.W[:, 1:])
+        self.W[:, :1] = (1 + self.alpha) * self.W[:, :1] - norm * delta_o.sum(axis=0)[:, None]
 
-        self.V[:, 1:] -= norm * (delta_h.T @ X + self.l2 * self.V[:, 1:])
-        self.V[:, :1] -=  norm * delta_h.sum(axis=0)[:, None]
+        self.V[:, 1:] = (1 + self.alpha) * self.V[:, 1:] - norm * (delta_h.T @ X + self.l2 * self.V[:, 1:])
+        self.V[:, :1] = (1 + self.alpha) * self.V[:, :1] - norm * delta_h.sum(axis=0)[:, None]
+
+        #self.prevV = self.V
+        #self.prevW = self.W
+
+
+    # =================== Evaluation =================
+
+    def get_loss(self):
+        return util.cross_entropy(self.O, util.one_hot(self.labels_active))
 
     def train_accuracy(self, total=False):
         if total:
@@ -132,18 +143,20 @@ class NeuralNetwork(object):
         return metrics.accuracy_score(self.labels_active, util.predict(self.O))
 
     def predict_test(self, X_test):
+        """ Return predictions given some unseen input data X_test."""
         self.X_active = X_test
         self.forward_pass()
         return util.predict(self.O)
 
     def print_results(self):
         f = open('results.txt', 'a')
-        f.write("\n________________ NeuralNetwork::print_results() ________________")
+        f.write("\n\n________________ NeuralNetwork::print_results() ________________")
         f.write("\nArchitecture:")
         f.write("\n\tHidden Units: {}".format(self.n_hid))
         f.write("\nHyperparameters:")
         f.write("\n\tLearning rate: {:.5E}".format(self.eta))
         f.write("\n\tdecay_const: {:.3F}".format(self.decay_const))
+        f.write("\n\tMomentum: {:.5E}".format(self.alpha))
         f.write("\n\tl2 reg: {:.3F}".format(self.l2))
         f.write("\n\tBatch size:{}".format(self.n_data_active))
         f.write("\n\tNum Epochs:{}".format(self.n_epochs))
@@ -151,6 +164,14 @@ class NeuralNetwork(object):
         f.write("\n\tTraining Accuracy:{:.4f}".format(self.train_accuracy(total=True)))
         f.write("\n\tTest Accuracy:{:.4f}".format(self.val_accuracy()))
         f.close()
+
+    def get_params(self):
+        return {'eta':          self.eta,
+                'decay_const':  self.decay_const,
+                'n_hid':        self.n_hid,
+                'l2':           self.l2,
+                'batch_size':   self.batch_size,
+                'n_epochs':     self.n_epochs}
 
 
 
