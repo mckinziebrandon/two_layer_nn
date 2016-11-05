@@ -30,8 +30,8 @@ class NeuralNetwork(object):
         # Weight initialization.
         self.V = util.weight_init((self.n_hid, self.n_in + 1),  how="uniform")
         self.W = util.weight_init((self.n_out, self.n_hid + 1), how="uniform")
-        #self.prevV = np.zeros(self.V.shape)
-        #self.prevW = np.zeros(self.W.shape)
+        self.prev_dV = np.zeros(self.V.shape)
+        self.prev_dW = np.zeros(self.W.shape)
 
     def set_data(self, X_train, labels_train):
         """ Store data in instance attribute self.data,
@@ -114,14 +114,18 @@ class NeuralNetwork(object):
 
         #pdb.set_trace()
         norm = self.eta / self.n_data_active
-        self.W[:, 1:] = (1 + self.alpha) * self.W[:, 1:] - norm * (delta_o.T @ H + self.l2 * self.W[:, 1:])
-        self.W[:, :1] = (1 + self.alpha) * self.W[:, :1] - norm * delta_o.sum(axis=0)[:, None]
+        dW = np.zeros(self.W.shape)
+        dW[:, 1:] = - norm * (delta_o.T @ H + self.l2 * self.W[:, 1:])
+        dW[:, :1] = - norm * delta_o.sum(axis=0)[:, None]
+        self.W += dW + self.alpha * self.prev_dW
 
-        self.V[:, 1:] = (1 + self.alpha) * self.V[:, 1:] - norm * (delta_h.T @ X + self.l2 * self.V[:, 1:])
-        self.V[:, :1] = (1 + self.alpha) * self.V[:, :1] - norm * delta_h.sum(axis=0)[:, None]
+        dV = np.zeros(self.V.shape)
+        dV[:, 1:] = - norm * (delta_h.T @ X + self.l2 * self.V[:, 1:])
+        dV[:, :1] = - norm * delta_h.sum(axis=0)[:, None]
+        self.V += dV + self.alpha * self.prev_dV
 
-        #self.prevV = self.V
-        #self.prevW = self.W
+        self.prev_dW = dW
+        self.prev_dV = dV
 
 
     # =================== Evaluation =================
@@ -156,7 +160,7 @@ class NeuralNetwork(object):
         f.write("\nHyperparameters:")
         f.write("\n\tLearning rate: {:.5E}".format(self.eta))
         f.write("\n\tdecay_const: {:.3F}".format(self.decay_const))
-        f.write("\n\tMomentum: {:.5E}".format(self.alpha))
+        f.write("\n\tMomentum: {:.2F}".format(self.alpha))
         f.write("\n\tl2 reg: {:.3F}".format(self.l2))
         f.write("\n\tBatch size:{}".format(self.n_data_active))
         f.write("\n\tNum Epochs:{}".format(self.n_epochs))

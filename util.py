@@ -51,6 +51,7 @@ def weight_init(shape, how):
 
 
 def moments(image):
+    # Credit: Dibya Ghosh
     c0,c1 = np.mgrid[:image.shape[0],:image.shape[1]] # A trick in numPy to create a mesh grid
     totalImage = np.sum(image) #sum of pixels
     m0 = np.sum(c0*image)/totalImage #mu_x
@@ -63,6 +64,7 @@ def moments(image):
     return mu_vector, covariance_matrix
 
 def deskew(image):
+    # Credit: Dibya Ghosh
     c,v = moments(image)
     alpha = v[0,1]/v[0,0]
     affine = np.array([[1,0],[alpha,1]])
@@ -71,6 +73,7 @@ def deskew(image):
     return interpolation.affine_transform(image,affine,offset=offset)
 
 def deskewAll(X):
+    # Credit: Dibya Ghosh
     currents = []
     for i in range(len(X)):
         currents.append(deskew(X[i].reshape(28,28)).flatten())

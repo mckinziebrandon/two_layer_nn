@@ -59,14 +59,14 @@ def trainNeuralNetwork(reload=False, wantDeskew=True):
 
     # ___________ Initialize the neural network. ____________
     neural_net = NeuralNetwork( n_in=X_train.shape[1],
-                                n_hid=200,
+                                n_hid=1200,
                                 n_out=10,
                                 eta=0.1,
-                                decay_const=0.5,
-                                alpha=0.1,
-                                l2=0.02,
+                                decay_const=0.8,
+                                alpha=0.9,
+                                l2=0.07,
                                 batch_size=50,
-                                n_epochs=3)
+                                n_epochs=15)
 
     neural_net.set_data(X_train, labels_train)
 
@@ -106,7 +106,7 @@ def trainNeuralNetwork(reload=False, wantDeskew=True):
 
 
     # Save Kaggle predictions in CSV file.
-    if False:
+    if True:
         pred_labels_test = neural_net.predict_test(util.preprocess(X_test))
         Id          = np.reshape(np.arange(1, 1+X_test.shape[0]), (X_test.shape[0], 1))
         Category    = np.reshape(pred_labels_test, (X_test.shape[0], 1))
