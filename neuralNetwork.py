@@ -16,6 +16,7 @@ class NeuralNetwork(object):
             self.n_in   number of inputs (features) to network.
             self.n_hid  number of hidden units in single hidden layer.
             self.n_out  number of output neurons.
+            TODO: Finish docstring....
         """
         self.n_in       = n_in
         self.n_hid      = n_hid
@@ -34,9 +35,8 @@ class NeuralNetwork(object):
         self.prev_dW = np.zeros(self.W.shape)
 
     def set_data(self, X_train, labels_train):
-        """ Store data in instance attribute self.data,
-            which is a dictionary with keys 'X' and 'Y'. """
-
+        """ Store shuffled data in instance variable self.data,
+            and make distinction between training and validation sets."""
         self.data                = self._get_shuffled_data_dict(X_train, labels_train)
         n_train = int(50e3)
         self.data['X_val']       = util.preprocess(self.data['X_train'][n_train:])
@@ -44,6 +44,7 @@ class NeuralNetwork(object):
         self.data['labels_val']  = self.data['labels_train'][n_train:]
         self.data['labels_train']= self.data['labels_train'][:n_train]
 
+        # The 'active' data will later correspond with the minibatch being used.
         self.X_active       = self.data['X_train']
         self.n_data_active  = self.X_active.shape[0]
         self.labels_active  = self.data['labels_train']
@@ -58,16 +59,16 @@ class NeuralNetwork(object):
         return {'X_train': new_x, 'labels_train': new_y.flatten()}
 
     def set_active(self, indices=None):
+        """ Store the training data indices of the next minibatch as 'active'. """
         if indices is None: return
         self.X_active      = self.data['X_train'][indices]
         self.labels_active = self.data['labels_train'][indices]
         self.n_data_active = self.X_active.shape[0]
 
-
     def new_epoch(self, i):
+        """ Put any changes at each epoch change here. """
         #self.eta /= (1 + 0.00001*i)
         self.eta *= self.decay_const
-
 
     def forward_pass(self, verbose=False, debug=False):
         """

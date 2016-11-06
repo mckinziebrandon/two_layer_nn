@@ -25,7 +25,12 @@ def load_dataset():
     # Remember to center and normalize the data...
     return X_train, labels_train, X_val, labels_val
 
-def get_data(reload=False, wantDeskew=True):
+def get_data(reload=True, wantDeskew=True):
+    """
+    Args:
+        reload --   If True, will load entire set of data via load_dataset(),
+                    else, loads the 'less_data_{}.npz'.format(n_save) file locally.
+    """
     if reload:
         X_train, labels_train, X_test, labels_test = load_dataset()
         X_train = X_train/255.
@@ -51,8 +56,6 @@ def trainNeuralNetwork(reload=False, wantDeskew=True):
 
     # Get the MNIST data, either by loading saved data or getting it new.
     X_train, labels_train, X_test, labels_test = get_data(reload, wantDeskew)
-    #labels_train = util.deskew(labels_train)
-    #labels_test = util.deskew(labels_test)
 
     print("X_train.shape", X_train.shape)
     print("labels_train.shape", labels_train.shape)
@@ -68,8 +71,10 @@ def trainNeuralNetwork(reload=False, wantDeskew=True):
                                 batch_size=50,
                                 n_epochs=15)
 
+    # Give training data to neural_net to store and further preprocessing.
     neural_net.set_data(X_train, labels_train)
 
+    # Create arrays for plotting results.
     accuracy = []
     loss = []
 
@@ -119,10 +124,14 @@ def trainNeuralNetwork(reload=False, wantDeskew=True):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == 'reload':
-        trainNeuralNetwork(reload=True)
-    else:
-        trainNeuralNetwork()
-    print("I am a robot. Bleep Bloop.")
+    # --- IGNORE ---
+    # Was using command-line args to speed up loading of data but
+    # any TA's need not worry about that.
+    #if len(sys.argv) > 1 and sys.argv[1] == 'reload':
+        #trainNeuralNetwork(reload=True)
+    #else:
+        #trainNeuralNetwork()
+
+    trainNeuralNetwork(reload=True, wantDeskew=True)
 
 

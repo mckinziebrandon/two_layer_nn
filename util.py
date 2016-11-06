@@ -80,7 +80,6 @@ def deskewAll(X):
     return np.array(currents)
 
 
-
 def plot_error(iter_axis, loss, accuracy, params):
 
     plt.style.use('ggplot')
